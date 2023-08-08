@@ -1,28 +1,9 @@
-const cardList = [{
-    title: 'cat 2',
-    path: 'images/cat1.jpg',
-    subTitle: 'About Cat 2',
-    description: 'Description of Cat 2'
-},
-{
-    title: 'cat 3',
-    path: 'images/cat2.jpg',
-    subTitle: 'About Cat 3',
-    description: 'Description of Cat 3'
-},
-{
-    title: 'cat 4',
-    path: 'images/cat3.jpg',
-    subTitle: 'About Cat 4',
-    description: 'Description of Cat 4'
-}];
-
 const addCards = (items) => {
     items.forEach(item => {
         let itemToAppend = '<div class="col s4 center-align">'+
                 '<div class="card medium"><div class="card-image waves-effect waves-block waves-light"><img class="activator" src="'+item.path+'">'+
                 '</div><div class="card-content">'+
-                '<span class="card-title activator grey-text text-darken-4">'+item.title+'<i class="material-icons right">more_vert</i></span><p><a href="#">'+item.subTitle+'</a></p></div>'+
+                '<span class="card-title activator grey-text text-darken-4">'+item.title+'<i class="material-icons right">more_vert</i></span><p><a href="#"></a></p></div>'+
                 '<div class="card-reveal">'+
                 '<span class="card-title grey-text text-darken-4">'+item.subTitle+'<i class="material-icons right">close</i></span>'+
                 '<p class="card-text">'+item.description+'</p>'+
@@ -31,21 +12,44 @@ const addCards = (items) => {
     });
 }
 
-const formSumitted = () => {
+const formSubmitted = () => {
     let formData = {};
-    formData.firstName = $('#first_name').val();
-    formData.lastName = $('#last_name').val();
-    formData.password = $('#password').val();
-    formData.email = $('#email').val();
+    formData.title = $('#title').val();
+    formData.subTitle = $('#subTitle').val();
+    formData.path = $('#path').val();
+    formData.description = $('#description').val();
 
     console.log(formData);
+    postCat(formData);
+}
+
+function postCat(cat){
+    $.ajax({
+        url:'/api/cat',
+        type:'POST',
+        data:cat,
+        success: (result)=>{
+            if (result.statusCode === 201) {
+                console.log('Kitties Added');
+            }
+        }
+    });
+}
+
+function getCats(){
+    $.get('/api/cats', (response)=>{
+        // response's data is in array format, so we can use it
+        if (response.statusCode === 200) {
+            addCards(response.data);
+        }
+    });
 }
 
 $(document).ready(function(){
     $('.materialboxed').materialbox();
     $('#formSubmit').click(()=>{
-        formSumitted();
+        formSubmitted();
     });
-    addCards(cardList);
     $('.modal').modal();
+    getCats();
 });

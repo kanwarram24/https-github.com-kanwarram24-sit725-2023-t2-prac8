@@ -1,15 +1,63 @@
 let express = require('express');
 let app = express();
+const { MongoClient, ServerApiVersion } = require('mongodb');
+const uri = "mongodb+srv://kanwarram:kanwar12@cluster0.rxxpsnk.mongodb.net/?retryWrites=true&w=majority";
 let port = process.env.port || 3000;
+let collection;
 
-app.set('view engine', 'ejs')
 app.use(express.static(__dirname + '/'));
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
 
-app.get('/', (req, res)=>{
-    res.render('pages/index.ejs');
+const client = new MongoClient(uri, {
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    }
 });
 
 
+async function runDBConnection() {
+    try {
+        await client.connect();
+        collection = client.db('Animals').collection('Kitty');
+        console.log(collection);
+    } catch(ex) {
+        console.error(ex);
+    }
+}
+
+app.get('/', function (req,res) {
+    res.render('index.html');
+});
+
+app.get('/api/cats', (req,res) => {
+    getCats((err,result)=>{
+        if (!err) {
+            res.json({statusCode:200, data:result, message:'get all cats successful'});
+        }
+    });
+});
+
+app.post('/api/cat', (req,res)=>{
+    let cat = req.body;
+    postCat(cat, (err, result) => {
+        if (!err) {
+            res.json({statusCode:201, data:result, message:'success'});
+        }
+    });
+});
+
+function postCat(cat,callback) {
+    collection.insertOne(cat,callback);
+}
+
+function getCats(callback){
+    collection.find({}).toArray(callback);
+}
+
 app.listen(port, ()=>{
-    console.log('server is ON');
+    console.log('express server started');
+    runDBConnection();
 });
