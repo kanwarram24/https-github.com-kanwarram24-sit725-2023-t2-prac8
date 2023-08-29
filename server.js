@@ -4,12 +4,8 @@ let port = process.env.port || 3000;
 require('./database/mongoDb')
 let router = require('./router/router')
 
-import { disconnect } from 'process';
-import { Socket } from 'socket.io';
 let http = require('http').createServer(app);
 let io = require('socket.io')(http);
-
-
 
 app.use(express.static(__dirname + '/'));
 app.use(express.json());
